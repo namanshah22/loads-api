@@ -45,32 +45,31 @@ public class myController {
 		return this.loadservice.getLoads(id);
 //		return id;
 	}
-	// to update a payload with loadId
 	@PutMapping("/load/{loadId}")
-	public void updateLoad(@PathVariable String loadId,@RequestBody Map<Object,Object> fields ) {
-		payLoad load= this.loadservice.getLoad(Long.parseLong(loadId));
-		fields.forEach((k,v) ->{
-			Field field=ReflectionUtils.findField(payLoad.class,(String) k);
-			field.setAccessible(true);
-			try {
-				ReflectionUtils.setField(field,load,v);
-			} catch(Exception e) {
-				String tmp=v.toString();
-				SimpleDateFormat formatter=new SimpleDateFormat("dd-MM-yyyy");
-				Date date = null;
-				try {
-					date = formatter.parse(tmp);
-				} catch (ParseException e1) {
-					
-					e1.printStackTrace();
-				}
-//				Field tmp=ReflectionUtils.findField(payLoad.class, (Date)v);
-				load.setDate(date);
-			}
-			
-		});
-		this.loadservice.updateLoad(load);
-	}
+ public void updateLoad(@PathVariable String loadId,@RequestBody Map<Object,Object> fields ) {
+    payLoad load= this.loadservice.getLoad(Long.parseLong(loadId));
+    fields.forEach((k,v) ->{
+        Field field=ReflectionUtils.findField(payLoad.class,(String) k);
+        if (field != null) {
+            field.setAccessible(true);
+            try {
+                ReflectionUtils.setField(field,load,v);
+            } catch(Exception e) {
+                String tmp=v.toString();
+                SimpleDateFormat formatter=new SimpleDateFormat("dd-MM-yyyy");
+                Date date = null;
+                try {
+                    date = formatter.parse(tmp);
+                } catch (ParseException e1) {
+                    e1.printStackTrace();
+                }
+                load.setDate(date);
+            }
+        }
+    });
+    this.loadservice.updateLoad(load);
+}
+
 	
 	// to delete a load given by loadId
 	@DeleteMapping("/load/{loadId}")
